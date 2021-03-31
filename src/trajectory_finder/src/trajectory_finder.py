@@ -17,6 +17,12 @@ def callback(data):
     for yellow_cones in data.cones_yellow:
         yellow_x_coords.append(yellow_cones.position.x)
         yellow_y_coords.append(yellow_cones.position.y)
+
+    plt.scatter(blue_x_coords, blue_y_coords, c='#0000ff')
+    plt.scatter(yellow_x_coords, yellow_y_coords, c='#ffff00')
+    plt.axes().set_aspect('equal')
+    plt.grid(True)
+    plt.show()
     
 def listener():
 
@@ -28,12 +34,6 @@ def listener():
     rospy.init_node('listener', anonymous=True)
 
     rospy.Subscriber("chicken/map", Map, callback)
-
-    plt.scatter(blue_x_coords, blue_y_coords, c='#0000ff')
-    plt.scatter(yellow_x_coords, yellow_y_coords, c='#ffff00')
-    plt.axes().set_aspect('equal')
-    plt.grid(True)
-    plt.show()
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
