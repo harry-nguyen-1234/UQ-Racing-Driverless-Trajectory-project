@@ -11,7 +11,6 @@ yellow_x_coords = []
 yellow_y_coords = []
 
 def callback(data):
-#    rospy.loginfo(rospy.get_caller_id() + " I heard %s", data.cones_blue[0].position.x)
     for blue_cones in data.cones_blue:
         blue_x_coords.append(blue_cones.position.x)
         blue_y_coords.append(blue_cones.position.y)
