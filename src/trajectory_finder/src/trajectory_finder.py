@@ -2,6 +2,8 @@
 import rospy
 from fssim_messages.msg import Map, Cone
 import matplotlib.pyplot as plt
+from scipy.interpolate import splprep, splev
+import numpy as np
 
 blue_x_coords = []
 blue_y_coords = []
@@ -18,8 +20,37 @@ def callback(data):
         yellow_x_coords.append(yellow_cones.position.x)
         yellow_y_coords.append(yellow_cones.position.y)
 
-    plt.scatter(blue_x_coords, blue_y_coords, c='#0000ff')
-    plt.scatter(yellow_x_coords, yellow_y_coords, c='#ffcc00')
+    #Set the spline resolution to be ten times the maximum number of cones.
+    new_resolution = max(len(blue_x_coords), len(yellow_x_coords)) * 10 
+
+    # Create a spline interpolation for the blue cones.
+    tck, u = splprep([blue_x_coords, blue_y_coords], s=0)
+    u_new = np.linspace(u.min(), u.max(), new_resolution)
+    blue_new_x, blue_new_y = splev(u_new, tck)
+    plt.plot(blue_new_x, blue_new_y, c='#0000ff')
+
+    # Create a spline interpolation for the yellow cones.
+    tck, u = splprep([yellow_x_coords, yellow_y_coords], s=0)
+    u_new = np.linspace(u.min(), u.max(), new_resolution)
+    yellow_new_x, yellow_new_y = splev(u_new, tck)
+    plt.plot(yellow_new_x, yellow_new_y, c='#ffcc00')
+
+    # Loop over the spline data points, skipping by 10.
+    for i in range(0, len(blue_new_x), 10):
+        x = [
+            blue_new_x[i], yellow_new_x[i]
+        ]
+        y = [
+            blue_new_y[i], yellow_new_y[i]
+        ]
+        # Draw a line between two points along each spline.
+        # Draw the midpoint of two points along each spline.
+        plt.plot(x, y, c='#ff0000')
+        plt.scatter(np.mean(x), np.mean(y), c='#ff00ff')
+
+    # Draw the original raw data.
+    plt.scatter(blue_x_coords, blue_y_coords, c='#000000')
+    plt.scatter(yellow_x_coords, yellow_y_coords, c='#000000')
     plt.axes().set_aspect('equal')
     plt.grid(True)
     plt.show()
