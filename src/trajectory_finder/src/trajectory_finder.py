@@ -19,7 +19,7 @@ def callback(data):
         yellow_y_coords.append(yellow_cones.position.y)
 
     plt.scatter(blue_x_coords, blue_y_coords, c='#0000ff')
-    plt.scatter(yellow_x_coords, yellow_y_coords, c='#ffff00')
+    plt.scatter(yellow_x_coords, yellow_y_coords, c='#ffcc00')
     plt.axes().set_aspect('equal')
     plt.grid(True)
     plt.show()
