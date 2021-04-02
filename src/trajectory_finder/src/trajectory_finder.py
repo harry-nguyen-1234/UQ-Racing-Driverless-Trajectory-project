@@ -2,7 +2,6 @@
 import rospy
 from fssim_messages.msg import Map, Cone
 from geometry_msgs.msg import PolygonStamped, Point32
-import matplotlib.pyplot as plt
 from scipy.spatial import KDTree
 import numpy as np
 
