@@ -2,53 +2,46 @@
 import rospy
 from fssim_messages.msg import Map, Cone
 import matplotlib.pyplot as plt
-from scipy.interpolate import splprep, splev
+from scipy.spatial import KDTree
 import numpy as np
 
 blue_x_coords = []
 blue_y_coords = []
 yellow_x_coords = []
 yellow_y_coords = []
+blue_coords = []
+yellow_coords = []
 
 def callback(data):
     for blue_cones in data.cones_blue:
         blue_x_coords.append(blue_cones.position.x)
         blue_y_coords.append(blue_cones.position.y)
+    blue_coords = zip(blue_x_coords, blue_y_coords)
 
     for yellow_cones in data.cones_yellow:
         yellow_x_coords.append(yellow_cones.position.x)
         yellow_y_coords.append(yellow_cones.position.y)
+    yellow_coords = zip(yellow_x_coords, yellow_y_coords)
 
-    spline_resolution = len(blue_x_coords) * len(yellow_x_coords)
+    tree = KDTree(blue_coords)
+    indexes = tree.query(yellow_coords)[1]
 
-    # Create a spline interpolation for the blue cones.
-    tck, u = splprep([blue_x_coords, blue_y_coords], s=0)
-    u_new = np.linspace(u.min(), u.max(), spline_resolution)
-    spline_blue_x, spline_blue_y = splev(u_new, tck)
-    plt.plot(spline_blue_x, spline_blue_y, c='#0000ff')
-
-    # Create a spline interpolation for the yellow cones.
-    tck, u = splprep([yellow_x_coords, yellow_y_coords], s=0)
-    u_new = np.linspace(u.min(), u.max(), spline_resolution)
-    spline_yellow_x, spline_yellow_y = splev(u_new, tck)
-    plt.plot(spline_yellow_x, spline_yellow_y, c='#ffcc00')
-
-    # Loop over the spline data points
-    for i in range(0, len(spline_blue_x), len(blue_x_coords)):
+    for count, value in enumerate(indexes):
         x = [
-            spline_blue_x[i], spline_yellow_x[i]
+        blue_x_coords[value],
+        yellow_x_coords[count]
         ]
+
         y = [
-            spline_blue_y[i], spline_yellow_y[i]
+        blue_y_coords[value],
+        yellow_y_coords[count]
         ]
-        # Draw a line between two points along each spline.
-        # Draw the midpoint of two points along each spline.
         plt.plot(x, y, c='#ff0000')
         plt.scatter(np.mean(x), np.mean(y), c='#ff00ff')
 
     # Draw the original raw data.
-    plt.scatter(blue_x_coords, blue_y_coords, c='#000000')
-    plt.scatter(yellow_x_coords, yellow_y_coords, c='#000000')
+    plt.scatter(blue_x_coords, blue_y_coords, c='#0000ff')
+    plt.scatter(yellow_x_coords, yellow_y_coords, c='#ffcc00')
     plt.axes().set_aspect('equal')
     plt.grid(True)
     plt.show()
