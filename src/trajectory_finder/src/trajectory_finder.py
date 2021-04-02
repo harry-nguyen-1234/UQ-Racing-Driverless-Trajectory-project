@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from scipy.spatial import KDTree
 import numpy as np
 
-publisher = rospy.Publisher("chicken/trajectory", PolygonStamped, queue_size=1)
+publisher = None
 
 def callback(data):
     blue_x_coords = []
@@ -40,9 +40,6 @@ def callback(data):
         yellow_y_coords[count]
         ]
 
-        plt.plot(x, y, c='#ff0000')
-        plt.scatter(np.mean(x), np.mean(y), c='#ff00ff')
-
         middle_points.append(Point32(np.mean(x), np.mean(y), 0))
 
     trajectory_polygon.polygon.points = middle_points
@@ -54,6 +51,8 @@ if __name__ == '__main__':
 
     rospy.init_node('trajectory_finder', anonymous=True)
     rospy.Subscriber("chicken/map", Map, callback)
+    publisher = rospy.Publisher("chicken/trajectory", PolygonStamped, 
+        latch=True, queue_size=1)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
