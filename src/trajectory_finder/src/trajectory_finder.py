@@ -38,7 +38,8 @@ def find_middle_points(blue_coords, yellow_coords):
     tree = KDTree(blue_coords)
     _, indexes_of_closest = tree.query(yellow_coords)
 
-    middle_points = []
+    middle_x = []
+    middle_y = []
     for count, value in enumerate(indexes_of_closest):
         x = [
         blue_coords[value][0],
@@ -56,23 +57,19 @@ def find_middle_points(blue_coords, yellow_coords):
             plt.plot(x, y, c='#ff0000')
             plt.scatter(np.mean(x), np.mean(y), c='#ff00ff')
 
-        middle_points.append([np.mean(x), np.mean(y)])
+        middle_x.append(np.mean(x))
+        middle_y.append(np.mean(y))
 
     if ENABLE_PLOTTING:
         # Draw a line between each midpoint in red.
-        x = [pair[0] for pair in middle_points]
-        y = [pair[1] for pair in middle_points]
-        plt.plot(x, y, c='#ff0000')
+        plt.plot(middle_x, middle_y, c='#ff0000')
     
-    return middle_points
+    return middle_x, middle_y
 
-def interpolate_middle_points(middle_points):
-    middle_x = [pair[0] for pair in middle_points]
-    middle_y = [pair[1] for pair in middle_points]
-
+def interpolate_middle_points(middle_x, middle_y):
     # Create a spline interpolation 
     scale_factor = 10
-    spline_resolution = len(middle_points) * scale_factor
+    spline_resolution = len(middle_x) * scale_factor
     tck, u = splprep([middle_x, middle_y], s=0)
     u_new = np.linspace(u.min(), u.max(), spline_resolution)
     spline_x, spline_y = splev(u_new, tck)
@@ -89,8 +86,8 @@ def interpolate_middle_points(middle_points):
 
 def callback(data):
     blue_coords, yellow_coords = find_cone_coords(data)
-    middle_points = find_middle_points(blue_coords, yellow_coords)
-    middle_points_interpolated = interpolate_middle_points(middle_points)
+    middle_x, middle_y  = find_middle_points(blue_coords, yellow_coords)
+    middle_points_interpolated = interpolate_middle_points(middle_x, middle_y)
 
     if ENABLE_PLOTTING:
         plt.axes().set_aspect('equal')
