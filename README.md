@@ -1,4 +1,4 @@
-# UQ Racing Driverless project.
+# UQ Racing Driverless Trajectory project.
 
 Project to generate car trajectory given known map of cones. <br/>
 Technologies: ROS, Python, Linux (Ubuntu)
